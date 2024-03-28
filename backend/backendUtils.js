@@ -3,7 +3,7 @@ import fsSync from 'fs';
 const fs = {
   ...fsSync.promises,
   existsSync: fsSync.existsSync,
-}
+};
 
 export function getPath(...pathSegments) {
   const homeDir = process.env.HOME || process.env.USERPROFILE;

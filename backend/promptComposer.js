@@ -24,7 +24,8 @@ export async function composePrompt(projectTree, prompt) {
         composedPrompt += fileTemplate
           .replace('{{filePath}}', item.path)
           .replace('{{fileContents}}', fileContents);
-      } else if (item.type === 'dir') {
+      }
+      else if (item.type === 'dir') {
         await processTree(item.children);
       }
     }

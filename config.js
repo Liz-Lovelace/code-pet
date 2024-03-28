@@ -1,21 +1,21 @@
 export const defaultIncludedFiletypes = [
   'jsx',
   'tsx',
-  'vue', 
+  'vue',
   'svelte',
 
   'js',
-  'mjs', 
+  'mjs',
   'ts',
-  'py', 
-  'rb', 
+  'py',
+  'rb',
 
   'html',
   'hbs',
 
   'sh',
 
-  'txt', 
+  'txt',
   'md',
 
   'json',
@@ -25,4 +25,4 @@ export const defaultIncludedFiletypes = [
   'example',
 
   '',
-]
+];

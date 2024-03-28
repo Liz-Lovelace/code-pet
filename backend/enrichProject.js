@@ -9,9 +9,10 @@ export async function enrichProjectTree(project) {
         size: info.size,
         filetype: info.filetype,
         include: false,
-      }
+      };
       Object.assign(item, updatedItem);
-    } else if (item.type === 'dir') {
+    }
+    else if (item.type === 'dir') {
       item.children = await enrichProjectTree(item.children);
     }
   }

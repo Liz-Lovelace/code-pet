@@ -1,16 +1,16 @@
 import { sortProjectTree } from './frontendUtils.js';
 
-const backendURL = 'http://localhost:10101'
+const backendURL = 'http://localhost:10101';
 
 async function getProjectList() {
   let response = await fetch(`${backendURL}/project-list`).then(res => res.json());
-  response.sort()
+  response.sort();
   return response;
 }
 
 async function getProjectTree(projectName) {
   let response = await fetch(`${backendURL}/project-tree?project=${projectName}`).then(res => res.json());
-  sortProjectTree(response)
+  sortProjectTree(response);
   return response;
 }
 
