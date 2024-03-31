@@ -14,13 +14,13 @@ async function getProjectTree(projectName) {
   return response;
 }
 
-async function composePrompt(projectTree, prompt) {
+async function composePrompt(projectName, projectTree, prompt) {
   const response = await fetch(`${backendURL}/compose-prompt`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ projectTree, prompt }),
+    body: JSON.stringify({ projectName, projectTree, prompt }),
   });
   return response.text();
 }

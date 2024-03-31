@@ -22,15 +22,11 @@ function treeSorter(a, b) {
     return -1;
   }
 
-  if (!a.include && !b.include) {
-    return 0;
-  }
-
-  if (!a.include) {
+  if (!a.include && b.include) {
     return 1;
   }
 
-  if (!b.include) {
+  if (!b.include && a.include) {
     return -1;
   }
 

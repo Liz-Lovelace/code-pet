@@ -24,8 +24,8 @@ app.get('/project-tree', async(req, res) => {
 });
 
 app.post('/compose-prompt', async(req, res) => {
-  const { projectTree, prompt } = req.body;
-  const composedPrompt = await composePrompt(projectTree, prompt);
+  const { projectName, projectTree, prompt } = req.body;
+  const composedPrompt = await composePrompt(projectName, projectTree, prompt);
   res.send(composedPrompt);
 });
 

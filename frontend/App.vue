@@ -42,7 +42,7 @@ export default {
 
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
-        const response = await api.composePrompt(projectTree.value, prompt.value);
+        const response = await api.composePrompt(projectName.value, projectTree.value, prompt.value);
         output.value = response;
         navigator.clipboard.writeText(response);
       }
