@@ -19,3 +19,7 @@ export async function getFileInfo(filePath) {
     filetype: path.extname(filePath).slice(1),
   };
 }
+
+export function sleep(seconds) {
+  return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}

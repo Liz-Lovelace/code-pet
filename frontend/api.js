@@ -1,6 +1,7 @@
-import { sortProjectTree } from './frontendUtils.js';
+import { sortProjectTree, sleep } from './frontendUtils.js';
+import { store } from './store.js';
 
-const backendURL = 'http://localhost:10101';
+const backendURL = '/api';
 
 async function getProjectList() {
   let response = await fetch(`${backendURL}/project-list`).then(res => res.json());
@@ -10,19 +11,45 @@ async function getProjectList() {
 
 async function getProjectTree(projectName) {
   let response = await fetch(`${backendURL}/project-tree?project=${projectName}`).then(res => res.json());
+
   sortProjectTree(response);
+
   return response;
 }
 
-async function composePrompt(projectName, projectTree, prompt) {
-  const response = await fetch(`${backendURL}/compose-prompt`, {
+async function generateCode(projectTree, prompt) {
+  const initResponse = await fetch(`${backendURL}/generate-code`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ projectName, projectTree, prompt }),
-  });
-  return response.text();
+    body: JSON.stringify({ projectTree, prompt }),
+  }).then(res => res.json());
+
+  if (initResponse.status !== 'ok') {
+    throw 'Something went wrong with initializing codegen'
+  }
+
+  store.generatedCode.status = 'codegen initialized'
+  while (store.generatedCode.status !== 'done') {
+    store.generatedCode = await fetch(`${backendURL}/generated-code`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }).then(res => res.json());
+    await sleep(100);
+  }
 }
 
-export default { getProjectList, getProjectTree, composePrompt };
+async function integrateCode(projectTree, generatedCode) {
+  const response = await fetch(`${backendURL}/integrate-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectTree, generatedCode }),
+  }).then(res => res.json());
+
+  return response;
+}
+
+export default { getProjectList, getProjectTree, generateCode, integrateCode };

@@ -26,3 +26,15 @@ export const defaultIncludedFiletypes = [
 
   '',
 ];
+
+// find at https://www.anthropic.com/api
+export const costs = {
+  haiku: {
+    input: 0.25 / 1000000,
+    output: 1.25 / 1000000,
+  },
+  opus: {
+    input: 15 / 1000000,
+    output: 75 / 1000000,
+  } 
+}

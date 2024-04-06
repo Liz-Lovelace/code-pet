@@ -1,24 +1,16 @@
 <template>
   <div class="app">
     <p> Repos in home dir: </p>
-    <div class="project-picker">
-      <span v-for="project in projectList" :key="project">
-        <a :href="`/?project=${project}`"> {{ project }} </a>
-      </span>
-    </div>
-    <h1> {{projectName && projectName.toUpperCase()}}</h1>
+    <project-picker />
+    <h1> {{store.projectName?.toUpperCase()}}</h1>
     <div class="box-container">
-      <project-tree-box :project-name="projectName" :project-tree="projectTree" />
-      <div class="prompt-box">
+      <project-tree-box />
+      <div class="task-box box">
         <h2>Task</h2>
-        <textarea v-model="prompt" class="prompt-textarea"></textarea>
+        <textarea v-model="store.task" class="task-textarea"></textarea>
       </div>
     </div>
-    <div class="output-box">
-      <h2> Output </h2>
-      <p style="user-select: none; text-align:right;">{{ outputLength }} B</p>
-      <pre>{{ output }}</pre>
-    </div>
+    <output-box/>
   </div>
 </template>
 
@@ -26,35 +18,32 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import api from './api.js';
 import ProjectTreeBox from './components/ProjectTreeBox.vue';
+import OutputBox from './components/OutputBox.vue';
+import ProjectPicker from './components/ProjectPicker.vue';
+import { store } from './store.js';
+
 
 export default {
   components: {
     ProjectTreeBox,
+    OutputBox,
+    ProjectPicker,
   },
   setup() {
-    const projectList = ref([]);
-    const projectTree = ref(null);
-    const projectName = ref(null);
-    const prompt = ref('');
-    const output = ref('');
-
-    const outputLength = computed(() => output.value.length);
-
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
-        const response = await api.composePrompt(projectName.value, projectTree.value, prompt.value);
-        output.value = response;
-        navigator.clipboard.writeText(response);
+        event.preventDefault()
+        await api.generateCode(store.projectTree, store.task);
       }
     };
 
     onMounted(async () => {
-      projectList.value = await api.getProjectList();
+      store.projectList = await api.getProjectList();
       const urlParams = new URLSearchParams(window.location.search);
-      projectName.value = urlParams.get('project');
-      if (projectName.value) {
-        let project = await api.getProjectTree(projectName.value);
-        projectTree.value = project;
+      store.projectName = urlParams.get('project');
+      if (store.projectName) {
+        let project = await api.getProjectTree(store.projectName);
+        store.projectTree = project;
       }
       document.addEventListener('keydown', handleKeyDown);
     });
@@ -64,29 +53,23 @@ export default {
     });
 
     return {
-      projectTree,
-      projectList,
-      projectName,
-      prompt,
-      output,
-      outputLength,
+      store,
     };
   },
 };
 </script>
 
-<style>
-  .project-picker {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 200px);
-    font-weight: bold;
-  }
 
+<style>
   h1 {
     margin: 40px 0 20px;
     padding: 10px 0;
     text-align: center;
     background-color: var(--box);
+  }
+  
+  .box {
+    padding: 25px 20px;
   }
 
   .box-container {
@@ -118,30 +101,19 @@ export default {
     padding: 10px 30px 30px;
   }
 
-  .prompt-box {
+  .task-box {
     background-color: var(--box);
-    padding: 10px 30px 30px;
+    min-height: 600px;
   }
 
-  .prompt-textarea {
+  .task-textarea {
     width: 100%;
-    height: 500px;
+    height: calc(100% - 40px);
     background-color: #0006;
     color: white;
     border: none;
     padding: 10px 0 10px 10px;
     font-size: 1rem;
     font-family: 'iosevka', monospace;
-  }
-
-  .output-box {
-    background-color: var(--box);
-    padding: 10px 30px 30px;
-    margin-top: 20px;
-  }
-
-  .output-box pre {
-    background-color: black;
-    padding: 10px;
   }
 </style>
