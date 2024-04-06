@@ -8,10 +8,11 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 });
 
-export async function askAI(prompt, model) {
+export async function askAI(systemPrompt, prompt, model) {
   const msg = await anthropic.messages.create({
     model: model == "opus" ? "claude-3-opus-20240229" : "claude-3-haiku-20240307",
     max_tokens: 4000,
+    system: systemPrompt,
     messages: [{ role: "user", content: prompt }],
   });
 

@@ -1,7 +1,7 @@
 import { sortProjectTree } from './frontendUtils.js';
 import axios from 'axios';
 
-const backendURL = 'http://localhost:10101';
+const backendURL = '/api';
 
 async function getProjectList() {
   let response = await axios.get(`${backendURL}/project-list`, { timeout: 0 }).then(res => res.data);

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { getProjectList, getProjectTree } from './scanProjects.js';
-import { composeCodegenPrompt, composeIntegrationPrompt} from './promptComposer.js';
+import { composeCodegenPrompt, composeIntegratorPrompt} from './promptComposer.js';
 import { askAI } from './askAI.js';
 import { parseDiff, applyDiff } from './integrator.js';
 
@@ -28,9 +28,9 @@ app.get('/project-tree', async(req, res) => {
 app.post('/generate-code', async(req, res) => {
   console.log('generating code...')
   const { projectTree, prompt } = req.body;
-  const codegenPrompt = await composeCodegenPrompt(projectTree, prompt);
+  const [codegenSystemPrompt, codegenPrompt] = await composeCodegenPrompt(projectTree, prompt);
   // todo: haiku is only for debug, generating code should be done with opus
-  const generatedCode = await askAI(codegenPrompt, 'opus');
+  const generatedCode = await askAI(codegenSystemPrompt, codegenPrompt, 'opus');
   console.log(generatedCode.content[0].text)
   res.json(generatedCode);
   console.log('...code generated :3')
@@ -39,8 +39,8 @@ app.post('/generate-code', async(req, res) => {
 app.post('/integrate-code', async(req, res) => {
   console.log('integrating code...')
   const { projectTree, generatedCode } = req.body;
-  const integrationPrompt = await composeIntegrationPrompt(projectTree, generatedCode);
-  const result = await askAI(integrationPrompt, 'haiku');
+  const [integratorSystemPrompt, integratorPrompt] = await composeIntegratorPrompt(projectTree, generatedCode);
+  const result = await askAI(integratorSystemPrompt, integratorPrompt, 'haiku');
   let diff = parseDiff(result.content[0].text)
   await applyDiff(diff);
   console.log(result.content[0].text)

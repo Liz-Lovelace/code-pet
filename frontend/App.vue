@@ -14,7 +14,7 @@
         <textarea v-model="prompt" class="prompt-textarea"></textarea>
       </div>
     </div>
-    <output-box :generated-code="output" :loading="loading" :project-tree="projectTree" :result-message="resultMessage" />
+    <output-box :generated-code={} :loading="loading" :project-tree="projectTree" :result-message="resultMessage" />
   </div>
 </template>
 

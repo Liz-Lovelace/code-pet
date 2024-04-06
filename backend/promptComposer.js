@@ -1,17 +1,8 @@
 import fs from 'fs/promises';
 import { getPath } from './backendUtils.js';
 
-export async function composeCodegenPrompt(projectTree, task) {
-  const fileItems = await getFileItems(projectTree);
+const integratorSystemPrompt = `You are the Code Integrator.
 
-  let prompt = `# Task\n${task}\n\n`;
-  prompt += drawFileTree(fileItems)
-  prompt += drawFiles(fileItems)
-
-  return prompt;
-}
-
-const integratorTask = `# Task
 Your job is to integrate changes into code files. 
 
 The required changes are described in the Instructions block, and the current state of the files is described in the Files block. 
@@ -47,18 +38,37 @@ old-line
 </file>
 \`\`\`
 
-Okay, now you're ready to integrate changes into code! Below is an Instructions block with all the changes that you need to make. If you see any instructions that you can't accomplish with the tools you're provided, like running console commands, you can ignore those instructions. You shouldn't explain anything you're doing, just output the tags and their contents.
+Okay, now you're ready to integrate changes into code! If you see any instructions that you can't accomplish with the tools you're provided, like running console commands, you can ignore those instructions. You shouldn't explain anything you're doing, just output the tags and their contents.`;
 
-`
-export async function composeIntegrationPrompt(projectTree, generatedCode) {
+export async function composeIntegratorPrompt(projectTree, generatedCode) {
   const fileItems = await getFileItems(projectTree);
 
-  let prompt = integratorTask;
-  prompt += `# Instructions\n${generatedCode}\n\n`
+  let prompt = `# Instructions\n${generatedCode}\n\n`
   prompt += drawFileTree(fileItems)
   prompt += drawFiles(fileItems)
 
-  return prompt;
+  return [integratorSystemPrompt, prompt];
+}
+
+const codegenSystemPrompt = `You write code.
+
+- Your coding style is pragmatic, clean, and concise.
+- You don't leave unnecessary comments in the code.
+- When asked to edit files, you provide only the necessary changes to the files, with a little bit of context around them to make it clear where the changes were made.
+- For every file you modify or create, specify the path to that file.
+- Use modern syntax. For javascript, that means using import and async/await. 
+- You shouldn't explain every little thing you did, but you should provide explanations for things that might be unclear or unusual in your code.
+- If you don't have some piece of information that is necessary to write the code, don't write any code and instead ask the user to provide that info. 
+- If you see a way to accomplish the task in a simpler/better way than the user proposed, don't write any code and instead tell the user about your idea.`
+
+export async function composeCodegenPrompt(projectTree, task) {
+  const fileItems = await getFileItems(projectTree);
+
+  let prompt = `# Task\n${task}\n\n`;
+  prompt += drawFileTree(fileItems)
+  prompt += drawFiles(fileItems)
+
+  return [codegenSystemPrompt, prompt];
 }
 
 function drawFileTree(items) {
