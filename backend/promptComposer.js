@@ -50,7 +50,7 @@ export async function composeIntegratorPrompt(projectTree, generatedCode) {
   return [integratorSystemPrompt, prompt];
 }
 
-const codegenSystemPrompt = `You write code.
+const codegenSystemPrompt = `You write code and answer questions.
 
 - Your coding style is pragmatic, clean, and concise.
 - You don't leave unnecessary comments in the code.
