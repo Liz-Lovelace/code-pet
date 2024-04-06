@@ -8,17 +8,13 @@
     </div>
     <h1> {{projectName && projectName.toUpperCase()}}</h1>
     <div class="box-container">
-      <project-tree-box :project-name="projectName" :project-tree="projectTree" />
+      <project-tree-box :project-tree="projectTree" />
       <div class="prompt-box">
         <h2>Task</h2>
         <textarea v-model="prompt" class="prompt-textarea"></textarea>
       </div>
     </div>
-    <div class="output-box">
-      <h2> Output </h2>
-      <p style="user-select: none; text-align:right;">{{ outputLength }} B</p>
-      <pre>{{ output }}</pre>
-    </div>
+    <output-box :generated-code="output" :loading="loading" :project-tree="projectTree" :result-message="resultMessage" />
   </div>
 </template>
 
@@ -26,10 +22,12 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import api from './api.js';
 import ProjectTreeBox from './components/ProjectTreeBox.vue';
+import OutputBox from './components/OutputBox.vue';
 
 export default {
   components: {
     ProjectTreeBox,
+    OutputBox,
   },
   setup() {
     const projectList = ref([]);
@@ -37,14 +35,15 @@ export default {
     const projectName = ref(null);
     const prompt = ref('');
     const output = ref('');
+    const loading = ref(false);
 
-    const outputLength = computed(() => output.value.length);
 
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
-        const response = await api.composePrompt(projectName.value, projectTree.value, prompt.value);
+        loading.value = true;
+        const response = await api.generateCode(projectTree.value, prompt.value);
         output.value = response;
-        navigator.clipboard.writeText(response);
+        loading.value = false;
       }
     };
 
@@ -69,11 +68,12 @@ export default {
       projectName,
       prompt,
       output,
-      outputLength,
+      loading,
     };
   },
 };
 </script>
+
 
 <style>
   .project-picker {
@@ -132,16 +132,5 @@ export default {
     padding: 10px 0 10px 10px;
     font-size: 1rem;
     font-family: 'iosevka', monospace;
-  }
-
-  .output-box {
-    background-color: var(--box);
-    padding: 10px 30px 30px;
-    margin-top: 20px;
-  }
-
-  .output-box pre {
-    background-color: black;
-    padding: 10px;
   }
 </style>

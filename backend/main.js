@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import { getProjectList, getProjectTree } from './scanProjects.js';
-import { composePrompt } from './promptComposer.js';
+import { composeCodegenPrompt, composeIntegrationPrompt} from './promptComposer.js';
+import { askAI } from './askAI.js';
+import { parseDiff, applyDiff } from './integrator.js';
 
 const app = express();
 app.use(cors());
@@ -23,10 +25,27 @@ app.get('/project-tree', async(req, res) => {
   res.json(project);
 });
 
-app.post('/compose-prompt', async(req, res) => {
-  const { projectName, projectTree, prompt } = req.body;
-  const composedPrompt = await composePrompt(projectName, projectTree, prompt);
-  res.send(composedPrompt);
+app.post('/generate-code', async(req, res) => {
+  console.log('generating code...')
+  const { projectTree, prompt } = req.body;
+  const codegenPrompt = await composeCodegenPrompt(projectTree, prompt);
+  // todo: haiku is only for debug, generating code should be done with opus
+  const generatedCode = await askAI(codegenPrompt, 'opus');
+  console.log(generatedCode.content[0].text)
+  res.json(generatedCode);
+  console.log('...code generated :3')
+});
+
+app.post('/integrate-code', async(req, res) => {
+  console.log('integrating code...')
+  const { projectTree, generatedCode } = req.body;
+  const integrationPrompt = await composeIntegrationPrompt(projectTree, generatedCode);
+  const result = await askAI(integrationPrompt, 'haiku');
+  let diff = parseDiff(result.content[0].text)
+  await applyDiff(diff);
+  console.log(result.content[0].text)
+  res.json({status: 'ok', message: `Code integrated! Check your files`});
+  console.log('...code integrated :3')
 });
 
 const port = 10101;

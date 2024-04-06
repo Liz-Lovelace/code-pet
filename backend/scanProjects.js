@@ -8,6 +8,25 @@ import ignore from 'ignore';
 import { getPath } from './backendUtils.js';
 import { enrichProjectTree } from './enrichProject.js';
 
+export async function getProjectTree(projectName) {
+  let ig = ignore();
+  const gitIgnorePath = getPath(projectName, '.gitignore');
+  if (fs.existsSync(gitIgnorePath)) {
+    const gitignoreContent = await fs.readFile(gitIgnorePath, 'utf8');
+    ig = ignore().add(gitignoreContent);
+  }
+
+  let project = await getFileTree(projectName, ig);
+  project = [{
+    name: projectName,
+    type: 'dir',
+    children: project,
+    path: '/',
+  }];
+
+  return enrichProjectTree(project);
+}
+
 export async function getProjectList() {
   const subdirs = await fs.readdir(getPath('/'), { withFileTypes: true });
   const gitDirs = subdirs.filter(dirent => dirent.isDirectory() && fs.existsSync(getPath(dirent.name, '.git')));
@@ -59,16 +78,4 @@ function shouldFileBeIgnored(filePath, ig) {
   }
 
   return false;
-}
-
-export async function getProjectTree(dirPath) {
-  let ig = ignore();
-  const gitIgnorePath = getPath(dirPath, '.gitignore');
-  if (fs.existsSync(gitIgnorePath)) {
-    const gitignoreContent = await fs.readFile(gitIgnorePath, 'utf8');
-    ig = ignore().add(gitignoreContent);
-  }
-
-  let project = await getFileTree(dirPath, ig);
-  return enrichProjectTree(project);
 }

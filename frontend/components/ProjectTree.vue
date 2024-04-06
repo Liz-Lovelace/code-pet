@@ -40,6 +40,9 @@ export default {
 ul.project-tree {
   list-style-type: none;
   user-select: none;
+}
+
+ul.project-tree  ul.project-tree {
   padding-left: 1.5em;
 }
 
@@ -51,6 +54,7 @@ ul.project-tree {
 .project-tree .file-line{
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .project-tree .file-line:not(.included) {
