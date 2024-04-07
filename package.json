@@ -1,7 +1,7 @@
 {
   "scripts": {
     "frontend": "parcel frontend/index.html",
-    "backend": "bun --watch backend/main.js",
+    "backend": "bun backend/main.js",
     "format": "eslint . -c 'eslint.yml' --ext .js,.vue --fix"
   },
   "type": "module",
