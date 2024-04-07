@@ -8,9 +8,9 @@
         <p style="text-align: right;"> {{ generatedCode.stop_reason }} </p>
       </div>
     </div>
+    <div v-if="resultMessage" class="result-message">{{ resultMessage }}</div>
     <textarea v-if="!loading" v-model="outputText" class="output-textarea"></textarea>
     <div v-else class="loading-indicator">Loading...</div>
-    <div v-if="resultMessage" class="result-message">{{ resultMessage }}</div>
   </div>
 </template>
 
