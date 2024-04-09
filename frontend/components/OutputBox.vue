@@ -8,39 +8,24 @@
         <p style="text-align: right;"> {{ store.stop_reason }} </p>
       </div>
     </div>
-    <div v-if="resultMessage" class="result-message">{{ resultMessage }}</div>
-    <textarea v-if="!loading" v-model="store.generatedCode" class="output-textarea"></textarea>
-    <div v-else class="loading-indicator">Loading...</div>
+    <div v-if="store.integrationMessage" class="result-message">{{ store.integrationMessage }}</div>
+    <div v-if="store.loading"  class="loading-indicator">Loading...</div>
+    <textarea v-model="store.generatedCode" class="output-textarea"></textarea>
   </div>
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
 import api from '../api.js';
 import { store } from '../store.js';
 
 
 export default {
-  props: {
-    loading: {
-      type: Boolean,
-      required: true,
-    },
-    projectTree: {
-      type: Object,
-      required: true,
-    },
-    resultMessage: {
-      type: String,
-      default: '',
-    },
-  },
-  setup(props, { emit }) {
+  setup() {
     async function integrateCode() {
-      emit('update:loading', true);
-      const response = await api.integrateCode(props.projectTree, store.outputText);
-      emit('update:resultMessage', response.message);
-      emit('update:loading', false);
+      store.loading = true;
+      const response = await api.integrateCode(store.projectTree, store.generatedCode);
+      store.integrationMessage = response.message;
+      store.loading = false;
     }
 
     return {

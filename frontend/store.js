@@ -1,10 +1,15 @@
 import { reactive } from 'vue';
 
 export const store = reactive({
-  generatedCode: '',
-  inputCost: '',
-  outputCost: '',
-  totalCost: '',
-  stop_reason: '',
-  projectList: [],
+  generatedCode: null,
+  inputCost: null,
+  outputCost: null,
+  totalCost: null,
+  stop_reason: null,
+  projectList: null,
+  loading: false,
+  projectName: null,
+  task: null,
+  projectTree: null,
+  integrationMessage: null,
 });

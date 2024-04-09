@@ -1,19 +1,22 @@
 <template>
   <div class="project-tree-box">
     <h2> Input code </h2>
-    <project-tree v-if="projectTree" :tree-root="projectTree" :tree-branch="projectTree" />
+    <project-tree v-if="store.projectTree" :tree-branch="store.projectTree" />
   </div>
 </template>
 
 <script>
 import ProjectTree from './ProjectTree.vue';
+import { store } from '../store.js';
 
 export default {
   components: {
     ProjectTree,
   },
-  props: {
-    projectTree: Object,
+  setup() {
+    return {
+      store,
+    };
   },
 };
 </script>

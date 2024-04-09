@@ -2,15 +2,15 @@
   <div class="app">
     <p> Repos in home dir: </p>
     <project-picker />
-    <h1> {{projectName && projectName.toUpperCase()}}</h1>
+    <h1> {{store.projectName?.toUpperCase()}}</h1>
     <div class="box-container">
-      <project-tree-box :project-tree="projectTree" />
-      <div class="prompt-box">
+      <project-tree-box />
+      <div class="task-box">
         <h2>Task</h2>
-        <textarea v-model="prompt" class="prompt-textarea"></textarea>
+        <textarea v-model="store.task" class="task-textarea"></textarea>
       </div>
     </div>
-    <output-box :loading="loading" :project-tree="projectTree" :result-message="resultMessage" />
+    <output-box/>
   </div>
 </template>
 
@@ -30,32 +30,26 @@ export default {
     ProjectPicker,
   },
   setup() {
-    const projectTree = ref(null);
-    const projectName = ref(null);
-    const prompt = ref('');
-    const loading = ref(false);
-
-
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
-        loading.value = true;
-        const response = await api.generateCode(projectTree.value, prompt.value);
+        store.loading = true;
+        const response = await api.generateCode(store.projectTree, store.task);
         store.generatedCode = response.content[0].text;
         store.inputCost = response.inputCost;
         store.outputCost = response.outputCost;
         store.totalCost = response.totalCost;
         store.stop_reason = response.stop_reason;
-        loading.value = false;
+        store.loading = false;
       }
     };
 
     onMounted(async () => {
       store.projectList = await api.getProjectList();
       const urlParams = new URLSearchParams(window.location.search);
-      projectName.value = urlParams.get('project');
-      if (projectName.value) {
-        let project = await api.getProjectTree(projectName.value);
-        projectTree.value = project;
+      store.projectName = urlParams.get('project');
+      if (store.projectName) {
+        let project = await api.getProjectTree(store.projectName);
+        store.projectTree = project;
       }
       document.addEventListener('keydown', handleKeyDown);
     });
@@ -65,10 +59,6 @@ export default {
     });
 
     return {
-      projectTree,
-      projectName,
-      prompt,
-      loading,
       store,
     };
   },
@@ -113,12 +103,12 @@ export default {
     padding: 10px 30px 30px;
   }
 
-  .prompt-box {
+  .task-box {
     background-color: var(--box);
     padding: 10px 30px 30px;
   }
 
-  .prompt-textarea {
+  .task-textarea {
     width: 100%;
     height: 500px;
     background-color: #0006;

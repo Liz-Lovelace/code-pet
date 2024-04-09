@@ -3,7 +3,7 @@
     <li v-for="item in treeBranch" :key="item.name + item.size" >
       <div v-if="item.type === 'dir'">
         <strong>{{ item.name }}/</strong>
-        <project-tree :tree-branch="item.children" :tree-root="treeRoot"></project-tree>
+        <project-tree :tree-branch="item.children"></project-tree>
       </div>
       <div v-else :class="{ 'included': item.include }" @click="toggleIncludeFile(item)"class="file-line">
         <span >{{ item.name }} </span>
@@ -15,6 +15,7 @@
 
 <script>
 import { sortProjectTree } from '../frontendUtils.js'
+import { store } from '../store.js'
 
 export default {
   props: {
@@ -22,16 +23,17 @@ export default {
       type: Array,
       required: true,
     },
-    treeRoot: {
-      type: Array,
-      required: true,
-    },
   },
   methods: {
     toggleIncludeFile(item) {
       item.include = !item.include;
-      sortProjectTree(this.treeRoot);
+      sortProjectTree(store.projectTree);
     },
+  },
+  setup() {
+    return {
+      store,
+    };
   },
 };
 </script>

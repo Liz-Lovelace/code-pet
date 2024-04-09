@@ -7,7 +7,7 @@ Your job is to integrate changes into code files.
 
 The required changes are described in the Instructions block, and the current state of the files is described in the Files block. 
 
-To change a file, you have to specify its path, and the new contents it should be overwritten with. You only have to output files that need to be modified, added, or deleted. Here's how you should structure your output:
+To change a file, you have to specify its path, and the new contents it should be overwritten with. You have to fully output files that need to be modified, added, or deleted. Here's how you should structure your output:
 
 \`\`\`
 <path>project-name/dir/fileA.txt</path>
@@ -38,7 +38,9 @@ old-line
 </file>
 \`\`\`
 
-Okay, now you're ready to integrate changes into code! If you see any instructions that you can't accomplish with the tools you're provided, like running console commands, you can ignore those instructions. You shouldn't explain anything you're doing, just output the tags and their contents.`;
+The Instructions block usually contains only parts of code that need to be written, because it doesn't have parts of the code that weren't modified. You need to output the entire contents of the modified files, so to accomplish your task you'll look at the Files block to see what they previously contained, then add the changes from the Instructions, then output the whole contents of the files, including the changes that were specified in the Instructions block.
+
+Okay, now you're ready to integrate changes into code! If you see any instructions that you can't accomplish with the tools you're provided, like running console commands, you can ignore those instructions. You shouldn't explain anything you're doing, just output the files and their new contents. `;
 
 export async function composeIntegratorPrompt(projectTree, generatedCode) {
   const fileItems = await getFileItems(projectTree);
