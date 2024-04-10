@@ -1,4 +1,5 @@
-import { sortProjectTree } from './frontendUtils.js';
+import { sortProjectTree, sleep } from './frontendUtils.js';
+import { store } from './store.js';
 
 const backendURL = '/api';
 
@@ -17,7 +18,7 @@ async function getProjectTree(projectName) {
 }
 
 async function generateCode(projectTree, prompt) {
-  const response = await fetch(`${backendURL}/generate-code`, {
+  const initResponse = await fetch(`${backendURL}/generate-code`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -25,7 +26,18 @@ async function generateCode(projectTree, prompt) {
     body: JSON.stringify({ projectTree, prompt }),
   }).then(res => res.json());
 
-  return response;
+  if (initResponse.status !== 'ok') {
+    throw 'Something went wrong with initializing codegen'
+  }
+
+  store.generatedCode.status = 'codegen initialized'
+  while (store.generatedCode.status !== 'done') {
+    store.generatedCode = await fetch(`${backendURL}/generated-code`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }).then(res => res.json());
+    await sleep(100);
+  }
 }
 
 async function integrateCode(projectTree, generatedCode) {

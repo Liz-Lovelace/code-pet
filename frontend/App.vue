@@ -5,7 +5,7 @@
     <h1> {{store.projectName?.toUpperCase()}}</h1>
     <div class="box-container">
       <project-tree-box />
-      <div class="task-box">
+      <div class="task-box box">
         <h2>Task</h2>
         <textarea v-model="store.task" class="task-textarea"></textarea>
       </div>
@@ -32,14 +32,8 @@ export default {
   setup() {
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
-        store.loading = true;
-        const response = await api.generateCode(store.projectTree, store.task);
-        store.generatedCode = response.content[0].text;
-        store.inputCost = response.inputCost;
-        store.outputCost = response.outputCost;
-        store.totalCost = response.totalCost;
-        store.stop_reason = response.stop_reason;
-        store.loading = false;
+        event.preventDefault()
+        await api.generateCode(store.projectTree, store.task);
       }
     };
 
@@ -73,6 +67,10 @@ export default {
     text-align: center;
     background-color: var(--box);
   }
+  
+  .box {
+    padding: 25px 20px;
+  }
 
   .box-container {
     display: flex;
@@ -105,12 +103,12 @@ export default {
 
   .task-box {
     background-color: var(--box);
-    padding: 10px 30px 30px;
+    min-height: 600px;
   }
 
   .task-textarea {
     width: 100%;
-    height: 500px;
+    height: calc(100% - 40px);
     background-color: #0006;
     color: white;
     border: none;

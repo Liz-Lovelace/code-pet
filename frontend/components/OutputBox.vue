@@ -1,16 +1,18 @@
 <template>
-  <div class="output-box">
+  <div class="output-box box">
     <h2>Output</h2>
     <div class="header-flex">
-      <button @click="integrateCode"> INTEGRATE </button>
-      <div>
-        <p style="text-align: right;"> {{ store.inputCost }} -> {{ store.outputCost }} = ¢{{ store.totalCost }}</p>
-        <p style="text-align: right;"> {{ store.stop_reason }} </p>
-      </div>
+      <p> ${{ (store.generatedCode.inputCost + store.generatedCode.outputCost).toFixed(2) }}
+        <span> (input {{ store.generatedCode.inputCost.toFixed(2) }} + output {{ store.generatedCode.outputCost.toFixed(2) }}) </span>
+      </p>
+      <p style="text-align: right;"> {{ store.generatedCode.status }} </p>
     </div>
     <div v-if="store.integrationMessage" class="result-message">{{ store.integrationMessage }}</div>
-    <div v-if="store.loading"  class="loading-indicator">Loading...</div>
-    <textarea v-model="store.generatedCode" class="output-textarea"></textarea>
+    <div v-if="store.loading" class="loading-indicator">Loading...</div>
+
+    <textarea v-model="store.generatedCode.text" class="output-textarea"></textarea>
+
+    <button @click="integrateCode"> INTEGRATE </button>
   </div>
 </template>
 
@@ -40,7 +42,6 @@ export default {
 <style>
 .output-box {
   background-color: var(--box);
-  padding: 10px 30px 30px;
   margin-top: 20px;
 }
 
@@ -50,27 +51,30 @@ export default {
   margin-bottom: 20px;
 }
 
-.header-flex button {
+.output-box button {
   color: white;
   background-color: var(--darkAccent);
   font-weight: bold;
+  font-size: 1.1em;
   border: 3px solid black;
-  width: 70%;
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
   cursor: cell;
 }
 
-.header-flex button:active {
+.output-box button:active {
   background-color: white;
   color: black;
 }
 
-.header-flex p {
-  margin: 1em 0;
+.header-flex th {
+  padding-right: 1em;
 }
 
 .output-textarea {
   width: 100%;
-  height: 80vh;
+  height: 60vh;
   background-color: black;
   color: white;
   border: none;

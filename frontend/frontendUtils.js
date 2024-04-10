@@ -39,3 +39,7 @@ function treeSorter(a, b) {
 
   return b.size - a.size;
 }
+
+export function sleep(miliseconds) {
+  return new Promise(resolve => setTimeout(resolve, miliseconds));
+}

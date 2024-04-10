@@ -1,5 +1,5 @@
 <template>
-  <div class="project-tree-box">
+  <div class="box">
     <h2> Input code </h2>
     <project-tree v-if="store.projectTree" :tree-branch="store.projectTree" />
   </div>
@@ -20,9 +20,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.project-tree-box {
-  padding: 10px 30px 30px;
-}
-</style>
