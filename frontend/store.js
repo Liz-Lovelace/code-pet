@@ -8,9 +8,9 @@ export const store = reactive({
     status: 'awaiting prompt'
   },
   projectList: null,
-  loading: false,
   projectName: null,
   task: null,
   projectTree: null,
-  integrationMessage: null,
+  currentTab: 'task',
+  diff: [],
 });

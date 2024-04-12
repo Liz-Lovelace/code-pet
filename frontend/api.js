@@ -40,8 +40,8 @@ async function generateCode(projectTree, prompt) {
   }
 }
 
-async function integrateCode(projectTree, generatedCode) {
-  const response = await fetch(`${backendURL}/integrate-code`, {
+async function generateDiff(projectTree, generatedCode) {
+  const response = await fetch(`${backendURL}/generate-diff`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -52,4 +52,4 @@ async function integrateCode(projectTree, generatedCode) {
   return response;
 }
 
-export default { getProjectList, getProjectTree, generateCode, integrateCode };
+export default { getProjectList, getProjectTree, generateCode, generateDiff: generateDiff };

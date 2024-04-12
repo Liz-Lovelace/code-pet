@@ -31,6 +31,7 @@ app.get('/project-tree', async(req, res) => {
 
 let globalStreamObject;
 app.post('/generate-code', async(req, res) => {
+  console.log('codegen...')
   const { projectTree, prompt } = req.body;
   const [codegenSystemPrompt, codegenPrompt] = await composeCodegenPrompt(projectTree, prompt);
   // todo: haiku is only for debug, generating code should be done with opus
@@ -42,15 +43,23 @@ app.get('/generated-code', async(req, res) => {
   res.json(globalStreamObject)
 });
 
-app.post('/integrate-code', async(req, res) => {
+app.post('/generate-diff', async(req, res) => {
   const { projectTree, generatedCode } = req.body;
   const [integratorSystemPrompt, integratorPrompt] = await composeIntegratorPrompt(projectTree, generatedCode);
   const result = await askAI(integratorSystemPrompt, integratorPrompt, 'haiku');
-  let diff = parseDiff(result.content[0].text)
-  await applyDiff(diff);
-  // console.log(result.content[0].text)
-  res.json({status: 'ok', message: `Code integrated! Check your files`});
+  console.log('got response from ai:\n')
+  console.log(result.content[0].text)
+  let diff = await parseDiff(result.content[0].text)
+  console.log(diff)
+  res.json({diff, status: 'ok'});
 });
+
+async function main() {
+  let diff = await parseDiff(awawa);
+  console.log(JSON.stringify(diff))
+  // await applyDiff(diff);
+}
+// main()
 
 const port = 10101;
 app.listen(port, () => {

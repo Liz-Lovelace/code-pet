@@ -1,32 +1,23 @@
 import fs from 'fs/promises';
 import { getPath } from './backendUtils.js';
 
-export async function applyDiff(diffObject) {
-  for (const item of diffObject) {
-    try {
-      const filePath = getPath(item.path);
+export async function applyDiff(diff) {
+  for (const delta of diff) {
+    const filePath = getPath(delta.path);
 
-      if (item.action === 'write') {
-        await fs.writeFile(filePath, item.body, 'utf8');
-      } else if (item.action === 'delete') {
-        await fs.unlink(filePath);
-      }
-    } catch (error) {
-      console.error(`Error writing/deleting file ${item.path}: ${error.message}`);
+    if (delta.newCode) {
+      await fs.writeFile(filePath, delta.newCode, 'utf8');
+    } else {
+      await fs.unlink(filePath);
     }
   }
 }
 
-export function parseDiff(rawDiff) {
-  try {
-    const objects = extractTags(rawDiff);
-    const groupedObjects = groupObjects(objects);
-    return groupedObjects;
-  } catch (error) {
-    console.error(`Error parsing file: ${error.message}`);
-    console.error(`Content:\n${rawDiff}`);
-    throw error;
-  }
+export async function parseDiff(rawDiff) {
+  let tags = extractTags(rawDiff);
+  let deltas = deltasFromTags(tags);
+  deltas = await addOldCode(deltas);
+  return deltas;
 }
 
 function extractTags(content) {
@@ -41,33 +32,42 @@ function extractTags(content) {
   return objects;
 }
 
-function groupObjects(objects) {
-  const groupedObjects = [];
+function deltasFromTags(tags) {
+  const diff = [];
 
-  for (let i = 0; i < objects.length; i++) {
-    const currentObject = objects[i];
+  for (let i = 0; i < tags.length; i++) {
+    const currentTag = tags[i];
 
-    if (currentObject.tag === 'path') {
-      if (i + 1 < objects.length && objects[i + 1].tag === 'file') {
-        groupedObjects.push({
+    if (currentTag.tag === 'path') {
+      if (i + 1 < tags.length && tags[i + 1].tag === 'file') {
+        diff.push({
           action: 'write',
-          path: currentObject.body,
-          body: objects[i + 1].body + '\n',
+          path: currentTag.body,
+          newCode: tags[i + 1].body + '\n',
         });
         i++;
       } else {
         throw new Error(`Missing <file> tag after <path> at index ${i}`);
       }
-    } else if (currentObject.tag === 'deletepath') {
-      groupedObjects.push({
+    } else if (currentTag.tag === 'deletepath') {
+      diff.push({
         action: 'delete',
-        path: currentObject.body,
+        path: currentTag.body,
+        newCode: '',
       });
     } else {
-      throw new Error(`Unexpected tag <${currentObject.tag}> at index ${i}`);
+      throw new Error(`Unexpected tag <${currentTag.tag}> at index ${i}`);
     }
   }
 
-  return groupedObjects;
+  return diff;
 }
 
+async function addOldCode(diff) {
+  diff = diff.map( async delta => ({
+    ...delta,
+    oldCode: await fs.readFile(getPath(delta.path), 'utf-8'),
+  }));
+
+  return Promise.all(diff)
+}

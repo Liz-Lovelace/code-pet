@@ -1,38 +1,39 @@
 <template>
-  <div class="app">
-    <p> Repos in home dir: </p>
-    <project-picker />
-    <h1> {{store.projectName?.toUpperCase()}}</h1>
-    <div class="box-container">
-      <project-tree-box />
-      <div class="task-box box">
-        <h2>Task</h2>
-        <textarea v-model="store.task" class="task-textarea"></textarea>
-      </div>
-    </div>
-    <output-box/>
+  <h1> {{store.projectName?.toUpperCase()}}</h1>
+  <div class="tabs">
+    <button :class="{currentTab: store.currentTab == 'task'}" @click="store.currentTab='task'">TASK</button>
+    <button :class="{currentTab: store.currentTab == 'output'}" @click="store.currentTab='output'">CODE</button>
+    <button :class="{currentTab: store.currentTab == 'diff'}" @click="store.currentTab='diff'">DIFF</button>
   </div>
+  <prompt-box v-show="store.currentTab == 'task'"/>
+  <output-box v-show="store.currentTab == 'output'"/>
+  <diff-box v-show="store.currentTab == 'diff'"/>
+
+  <project-picker />
 </template>
 
 <script>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import api from './api.js';
-import ProjectTreeBox from './components/ProjectTreeBox.vue';
+import PromptBox from './components/PromptBox.vue';
 import OutputBox from './components/OutputBox.vue';
+import DiffBox from './components/DiffBox.vue';
 import ProjectPicker from './components/ProjectPicker.vue';
 import { store } from './store.js';
 
 
 export default {
   components: {
-    ProjectTreeBox,
+    PromptBox,
     OutputBox,
+    DiffBox,
     ProjectPicker,
   },
   setup() {
     const handleKeyDown = async (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
         event.preventDefault()
+        store.generatedCode.text = '';
         await api.generateCode(store.projectTree, store.task);
       }
     };
@@ -62,27 +63,13 @@ export default {
 
 <style>
   h1 {
-    margin: 40px 0 20px;
-    padding: 10px 0;
+    margin: 10px 0 10px;
     text-align: center;
-    background-color: var(--box);
   }
   
   .box {
     padding: 25px 20px;
-  }
-
-  .box-container {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin: 20px 0;
-    gap: 20px;
-  }
-
-  .box-container > * {
     background-color: var(--box);
-    width: 100%;
   }
 
   h2 {
@@ -97,23 +84,14 @@ export default {
     color: var(--blue);
   }
 
-  .project-tree-box {
-    padding: 10px 30px 30px;
-  }
-
-  .task-box {
+  .tabs * {
+    opacity: 0.6;
     background-color: var(--box);
-    min-height: 600px;
+    width: 120px;
+    height: 40px;
   }
 
-  .task-textarea {
-    width: 100%;
-    height: calc(100% - 40px);
-    background-color: #0006;
-    color: white;
-    border: none;
-    padding: 10px 0 10px 10px;
-    font-size: 1rem;
-    font-family: 'iosevka', monospace;
+  .currentTab {
+    opacity: 1;
   }
 </style>
