@@ -5,7 +5,7 @@ export const store = reactive({
     text: 'Generated code will appear here',
     inputCost: 0,
     outputCost: 0,
-    status: 'awaiting prompt'
+    status: 'awaiting prompt',
   },
   projectList: null,
   projectName: null,

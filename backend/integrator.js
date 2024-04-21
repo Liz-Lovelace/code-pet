@@ -7,7 +7,8 @@ export async function applyDiff(diff) {
 
     if (delta.newCode) {
       await fs.writeFile(filePath, delta.newCode, 'utf8');
-    } else {
+    }
+    else {
       await fs.unlink(filePath);
     }
   }
@@ -46,16 +47,19 @@ function deltasFromTags(tags) {
           newCode: tags[i + 1].body,
         });
         i++;
-      } else {
+      }
+      else {
         throw new Error(`Missing <file> tag after <path> at index ${i}`);
       }
-    } else if (currentTag.tag === 'deletepath') {
+    }
+    else if (currentTag.tag === 'deletepath') {
       diff.push({
         action: 'delete',
         path: currentTag.body,
         newCode: '',
       });
-    } else {
+    }
+    else {
       throw new Error(`Unexpected tag <${currentTag.tag}> at index ${i}`);
     }
   }
@@ -64,19 +68,22 @@ function deltasFromTags(tags) {
 }
 
 async function addOldCode(diff) {
-  diff = diff.map(async (delta) => {
-    let oldCode = "";
+  diff = diff.map(async(delta) => {
+    let oldCode = '';
     try {
       await fs.stat(getPath(delta.path));
       oldCode = await fs.readFile(getPath(delta.path), 'utf-8');
-    } catch (error) {
-      if (error.code !== 'ENOENT') { throw error; }
+    }
+    catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
     }
     return {
       ...delta,
       oldCode,
     };
-  })
+  });
 
   return Promise.all(diff);
 }

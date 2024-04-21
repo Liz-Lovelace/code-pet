@@ -45,9 +45,9 @@ Okay, now you're ready to integrate changes into code! If you see any instructio
 export async function composeIntegratorPrompt(projectTree, generatedCode) {
   const fileItems = await getFileItems(projectTree);
 
-  let prompt = `# Instructions\n${generatedCode}\n\n`
-  prompt += drawFileTree(fileItems)
-  prompt += drawFiles(fileItems)
+  let prompt = `# Instructions\n${generatedCode}\n\n`;
+  prompt += drawFileTree(fileItems);
+  prompt += drawFiles(fileItems);
 
   return [integratorSystemPrompt, prompt];
 }
@@ -60,20 +60,20 @@ const codegenSystemPrompt = `You write code and answer questions.
 - Use modern syntax. For javascript, that means using import and async/await. 
 - You shouldn't explain every little thing you did, but you should provide explanations for things that might be unclear or unusual in your code.
 - If you don't have some piece of information that is necessary to write the code, don't write any code and instead ask the user to provide that info. 
-- If you see a way to accomplish the task in a simpler/better way than the user proposed, don't write any code and instead tell the user about your idea.`
+- If you see a way to accomplish the task in a simpler/better way than the user proposed, don't write any code and instead tell the user about your idea.`;
 
 export async function composeCodegenPrompt(projectTree, task) {
   const fileItems = await getFileItems(projectTree);
 
   let prompt = `# Task\n${task}\n\n`;
-  prompt += drawFileTree(fileItems)
-  prompt += drawFiles(fileItems)
+  prompt += drawFileTree(fileItems);
+  prompt += drawFiles(fileItems);
 
   return [codegenSystemPrompt, prompt];
 }
 
 function drawFileTree(items) {
-  let fileTree = `# File tree\n`;
+  let fileTree = '# File tree\n';
 
   for (const item of items) {
     const indentation = '  '.repeat(item.depth);
@@ -95,7 +95,7 @@ const fileTemplate = `{{filePath}}
 `;
 
 function drawFiles(items) {
-  let fileBlock = `# files \n`
+  let fileBlock = '# files \n';
   for (const item of items) {
     if (item.type === 'file' && item.include) {
       fileBlock += fileTemplate
@@ -103,7 +103,7 @@ function drawFiles(items) {
         .replace('{{fileContents}}', item.contents);
     }
   }
-  return fileBlock
+  return fileBlock;
 }
 
 async function getFileItems(tree, depth = 0) {

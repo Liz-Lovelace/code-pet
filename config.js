@@ -36,5 +36,5 @@ export const costs = {
   opus: {
     input: 15 / 1000000,
     output: 75 / 1000000,
-  } 
-}
+  },
+};

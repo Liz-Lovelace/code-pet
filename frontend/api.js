@@ -27,10 +27,10 @@ async function generateCode(projectTree, prompt) {
   }).then(res => res.json());
 
   if (initResponse.status !== 'ok') {
-    throw 'Something went wrong with initializing codegen'
+    throw 'Something went wrong with initializing codegen';
   }
 
-  store.generatedCode.status = 'codegen initialized'
+  store.generatedCode.status = 'codegen initialized';
   while (store.generatedCode.status !== 'done') {
     store.generatedCode = await fetch(`${backendURL}/generated-code`, {
       method: 'GET',
