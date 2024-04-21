@@ -1,7 +1,8 @@
 <template>
   <div class="diff-box box">
     <h3> Changed files: </h3>
-    <div ref="diffContainer"></div>
+    <div class="diff-container" ref="diffContainer"></div>
+    <button @click="applyDiff">Apply Changes</button>
   </div>
 </template>
 
@@ -19,6 +20,10 @@ export default {
     const diffContainer = ref(null);
 
     watch(() => store.diff,  (diff) => {
+      if (!diff.length) {
+        return;
+      }
+
       let patch = diff.reduce((acc, delta) => {
         return acc += createPatch(delta.path, delta.oldCode, delta.newCode);
       }, "");
@@ -33,9 +38,14 @@ export default {
       diffHtml.draw();
     }, {deep: true});
 
+    async function applyDiff() {
+      await api.applyDiff(store.diff);
+    }
+
     return {
       store,
       diffContainer,
+      applyDiff,
     };
   },
 };
@@ -45,7 +55,7 @@ export default {
 <style>
 .diff-box {
   --d2h-dark-bg-color: #0e0c0b;
-  --d2h-dark-file-header-bg-color: #1a1715;
+  --d2h-dark-file-header-bg-color: var(--surface);
   --d2h-moved-label-color: var(--blue);
 }
 
@@ -88,10 +98,6 @@ del {
   padding: 20px 10px 2.6em;
 }
 
-.d2h-file-list-header {
-  display: none;
-}
-
 .d2h-file-list-wrapper {
   background-color: inherit;
   margin-bottom: 2em;
@@ -124,10 +130,38 @@ del {
 
 .d2h-file-wrapper {
   background-color: var(--d2h-dark-bg-color);
-  border: none !important;
+  border: 20px solid var(--d2h-dark-file-header-bg-color) !important;
+  outline: 1px solid #fff3;
+  margin-bottom: 3em;
 }
 
-.d2h-code-linenumber, .d2h-icon, .d2h-tag, .d2h-code-line-prefix, .d2h-info{
+.d2h-code-linenumber, .d2h-icon, .d2h-tag, .d2h-code-line-prefix, .d2h-file-list-header {
   display: none;
+}
+
+.d2h-info {
+  background-color: var(--d2h-dark-file-header-bg-color) !important;
+
+  mask: linear-gradient(
+    to bottom, #0000 0, #000f 35%, #000f 65%, #0000 100%
+  ) ;
+
+
+  text-align: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.diff-box button {
+  font-size: 1.1em;
+  border: 3px solid black;
+  width: 100%;
+  cursor: cell;
+  margin-top: 1em;
+}
+
+.diff-box button:active {
+  background-color: white;
+  color: black;
 }
 </style>

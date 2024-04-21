@@ -52,4 +52,16 @@ async function generateDiff(projectTree, generatedCode) {
   return response;
 }
 
-export default { getProjectList, getProjectTree, generateCode, generateDiff: generateDiff };
+async function applyDiff(diff) {
+  const response = await fetch(`${backendURL}/apply-diff`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ diff }),
+  }).then(res => res.json());
+
+  return response;
+}
+
+export default { getProjectList, getProjectTree, generateCode, generateDiff, applyDiff };

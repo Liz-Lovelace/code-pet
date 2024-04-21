@@ -54,6 +54,12 @@ app.post('/generate-diff', async(req, res) => {
   res.json({diff, status: 'ok'});
 });
 
+app.post('/apply-diff', async(req, res) => {
+  const { diff } = req.body;
+  await applyDiff(diff);
+  res.json({status: 'ok'});
+});
+
 async function main() {
   let diff = await parseDiff(awawa);
   console.log(JSON.stringify(diff))

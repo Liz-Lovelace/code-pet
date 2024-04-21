@@ -1,4 +1,5 @@
 <template>
+  <project-picker />
   <h1> {{store.projectName?.toUpperCase()}}</h1>
   <div class="tabs">
     <button :class="{currentTab: store.currentTab == 'task'}" @click="store.currentTab='task'">TASK</button>
@@ -8,8 +9,6 @@
   <prompt-box v-show="store.currentTab == 'task'"/>
   <output-box v-show="store.currentTab == 'output'"/>
   <diff-box v-show="store.currentTab == 'diff'"/>
-
-  <project-picker />
 </template>
 
 <script>

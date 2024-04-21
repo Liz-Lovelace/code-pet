@@ -43,7 +43,7 @@ function deltasFromTags(tags) {
         diff.push({
           action: 'write',
           path: currentTag.body,
-          newCode: tags[i + 1].body + '\n',
+          newCode: tags[i + 1].body,
         });
         i++;
       } else {
@@ -64,10 +64,19 @@ function deltasFromTags(tags) {
 }
 
 async function addOldCode(diff) {
-  diff = diff.map( async delta => ({
-    ...delta,
-    oldCode: await fs.readFile(getPath(delta.path), 'utf-8'),
-  }));
+  diff = diff.map(async (delta) => {
+    let oldCode = "";
+    try {
+      await fs.stat(getPath(delta.path));
+      oldCode = await fs.readFile(getPath(delta.path), 'utf-8');
+    } catch (error) {
+      if (error.code !== 'ENOENT') { throw error; }
+    }
+    return {
+      ...delta,
+      oldCode,
+    };
+  })
 
-  return Promise.all(diff)
+  return Promise.all(diff);
 }

@@ -13,7 +13,8 @@
     }
 
     :root {
-      --box: #1e1e1e;
+      --box: #1a1a1a;
+      --surface: #1e1e1e;
       --blue: #278dc0;
       --darkAccent: #111;
     }
@@ -22,7 +23,6 @@
       font-family: iosevka, monospace;
       background-color: #0c0c0c;
       color: #ddd;
-      padding: 10px;
     }
 
     * {
@@ -37,11 +37,13 @@
     }
 
     textarea {
-      background-color: #0006;
+      background-color: var(--surface);
       color: white;
       border: none;
       padding: 10px 0 10px 10px;
       font-family: 'iosevka', monospace;
+      border-radius: 5px;
+      border: 1px solid #fff2;
     }
 
     button {
