@@ -46,7 +46,7 @@ app.get('/generated-code', async(req, res) => {
 app.post('/generate-diff', async(req, res) => {
   const { projectTree, generatedCode } = req.body;
   const [integratorSystemPrompt, integratorPrompt] = await composeIntegratorPrompt(projectTree, generatedCode);
-  const result = await askAI(integratorSystemPrompt, integratorPrompt, 'haiku');
+  const result = await askAI(integratorSystemPrompt, integratorPrompt, 'sonnet');
   console.log('got response from ai:\n');
   console.log(result.content[0].text);
   let diff = await parseDiff(result.content[0].text);

@@ -3,11 +3,11 @@ import { getPath } from './backendUtils.js';
 
 const integratorSystemPrompt = `You are the Code Integrator.
 
-Your job is to integrate changes into code files. 
+Your job is to integrate new code into old code files. 
 
-The required changes are described in the Instructions block, and the current state of the files is described in the Files block. 
+The required changes are described in the NewCode block, and the current state of the files is described in the OldFiles block. 
 
-To change a file, you have to specify its path, and the new contents it should be overwritten with. You have to fully output files that need to be modified, added, or deleted. Here's how you should structure your output:
+To change a file, you have to specify its path, and the code it should be overwritten with. You have to fully output files that need to be modified, added, or deleted. Here's how you should structure your output:
 
 \`\`\`
 <path>project-name/dir/fileA.txt</path>
@@ -38,16 +38,18 @@ old-line
 </file>
 \`\`\`
 
-The Instructions block usually contains only parts of code that need to be written, because it doesn't have parts of the code that weren't modified. You need to output the entire contents of the modified files, so to accomplish your task you'll look at the Files block to see what they previously contained, then add the changes from the Instructions, then output the whole contents of the files, including the changes that were specified in the Instructions block.
+You need to output the entire contents of the modified files, so to accomplish your task you'll look at the OldFiles block to see what they previously contained, then add the changes from NewCode, then output the whole contents of the files, with new code added to the old code.
 
-Okay, now you're ready to integrate changes into code! If you see any instructions that you can't accomplish with the tools you're provided, like running console commands, you can ignore those instructions. You shouldn't explain anything you're doing, just output the files and their new contents. `;
+Sometimes in the new code you're provided, you'll see something like /*...unmodified...*/ or /* other code */. That means you have to substitute the comment with the old code that is in that spot.
+
+Okay, now you're ready to integrate changes into code! You shouldn't explain anything you're doing, just output the files and their new contents. `;
 
 export async function composeIntegratorPrompt(projectTree, generatedCode) {
   const fileItems = await getFileItems(projectTree);
 
-  let prompt = `# Instructions\n${generatedCode}\n\n`;
+  let prompt = `# NewCode\n${generatedCode}\n\n`;
   prompt += drawFileTree(fileItems);
-  prompt += drawFiles(fileItems);
+  prompt += drawOldFiles(fileItems);
 
   return [integratorSystemPrompt, prompt];
 }
@@ -60,15 +62,17 @@ const codegenSystemPrompt = `You write code and answer questions.
 - Use modern syntax. For javascript, that means using import and async/await. 
 - You shouldn't explain every little thing you did, but you should provide explanations for things that might be unclear or unusual in your code.
 - If you don't have some piece of information that is necessary to write the code, don't write any code and instead ask the user to provide that info. 
-- If you see a way to accomplish the task in a simpler/better way than the user proposed, don't write any code and instead tell the user about your idea.`;
+- If you see a way to accomplish the task in a simpler/better way than the user proposed, don't write any code and instead tell the user about your idea.
+- If you want to leave some of the code in a file unchanged, write this comment: /*...unmodified...*/`;
 
 export async function composeCodegenPrompt(projectTree, task) {
   const fileItems = await getFileItems(projectTree);
 
   let prompt = `# Task\n${task}\n\n`;
   prompt += drawFileTree(fileItems);
-  prompt += drawFiles(fileItems);
+  prompt += drawOldFiles(fileItems);
 
+  console.log(prompt)
   return [codegenSystemPrompt, prompt];
 }
 
@@ -94,8 +98,8 @@ const fileTemplate = `{{filePath}}
 
 `;
 
-function drawFiles(items) {
-  let fileBlock = '# files \n';
+function drawOldFiles(items) {
+  let fileBlock = '# OldFiles \n';
   for (const item of items) {
     if (item.type === 'file' && item.include) {
       fileBlock += fileTemplate

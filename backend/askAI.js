@@ -8,10 +8,16 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+let modelMap = {
+    'haiku': 'claude-3-haiku-20240307',
+    'sonnet': 'claude-3-sonnet-20240229',
+    'opus': 'claude-3-opus-20240229',
+}
+
 export async function askAI(systemPrompt, prompt, model) {
   console.log('asking ai (not streaming)');
   return await anthropic.messages.create({
-    model: model == 'opus' ? 'claude-3-opus-20240229' : 'claude-3-haiku-20240307',
+    model: modelMap[model],
     max_tokens: 4000,
     system: systemPrompt,
     messages: [{ role: 'user', content: prompt }],
@@ -20,7 +26,7 @@ export async function askAI(systemPrompt, prompt, model) {
 
 export async function streamAskAI(systemPrompt, prompt, model) {
   const stream = await anthropic.messages.create({
-    model: model == 'opus' ? 'claude-3-opus-20240229' : 'claude-3-haiku-20240307',
+    model: modelMap[model],
     max_tokens: 4000,
     system: systemPrompt,
     stream: true,

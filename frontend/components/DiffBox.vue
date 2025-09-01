@@ -150,6 +150,7 @@ del {
   text-align: center;
   padding-top: 15px;
   padding-bottom: 15px;
+  opacity: 70%;
 }
 
 .diff-box button {
